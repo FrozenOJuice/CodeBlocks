@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeBlocks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>CodeBlocks</h1>
+            <div class="header-controls">
+                <input type="text" id="search" placeholder="Search code blocks...">
+                <button id="add-block-btn">+ Add Block</button>
+                <button id="save-json-btn">Save to JSON</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="filter-controls">
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="blocks-list" id="blocks-list">
+                    <!-- Code blocks will be populated here -->
+                </div>
+            </aside>
+
+            <main class="code-viewer" id="code-viewer">
+                <div class="no-selection">
+                    <p>Select a code block from the sidebar to view it</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Code Block Modal -->
+    <div class="modal" id="code-block-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Code Block</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="code-block-form">
+                <div class="form-group">
+                    <label for="block-title">Title</label>
+                    <input type="text" id="block-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="block-category">Category</label>
+                    <input type="text" id="block-category" required>
+                </div>
+                <div class="form-group">
+                    <label for="block-code">Code</label>
+                    <textarea id="block-code" rows="10" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="block-explanation">General Explanation</label>
+                    <textarea id="block-explanation" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Line Explanations (one per line, format: lineNumber:explanation)</label>
+                    <textarea id="line-explanations" rows="5" placeholder="1:This line imports the required module&#10;2:This function initializes the application"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-btn">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fullscreen Code Viewer -->
+    <div class="fullscreen-viewer" id="fullscreen-viewer">
+        <div class="fullscreen-header">
+            <h3 id="fullscreen-title"></h3>
+            <button class="close-fullscreen" id="close-fullscreen">&times;</button>
+        </div>
+        <div class="fullscreen-content">
+            <pre id="fullscreen-code"></pre>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

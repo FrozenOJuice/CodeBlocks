@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "title": "Array Sorting Function",
+    "category": "JavaScript",
+    "code": "function sortArray(arr) {\n  return arr.sort((a, b) => a - b);\n}\n\nconst numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5];\nconst sorted = sortArray(numbers);\nconsole.log(sorted);",
+    "explanation": "This function sorts an array of numbers in ascending order using the Array.sort() method with a comparison function.",
+    "lineExplanations": {
+      "1": "Define a function named sortArray that takes an array as parameter",
+      "2": "Return the sorted array using a comparison function for numerical sorting",
+      "5": "Declare an array of numbers to sort",
+      "6": "Call the sortArray function and store the result",
+      "7": "Output the sorted array to the console"
+    }
+  },
+  {
+    "id": 2,
+    "title": "Python Start",
+    "category": "Python",
+    "code": "print(\"Hello, World!\")\nThis is a test line",
+    "explanation": "Starter code",
+    "lineExplanations": {
+      "1": "First line",
+      "2": "Another test to make sure"
+    }
+  }
+]
