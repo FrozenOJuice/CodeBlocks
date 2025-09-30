@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8080';
 
 // Global state
 let codeBlocks = [];
@@ -320,13 +320,20 @@ function renderEditView(block) {
     codeViewer.innerHTML = `
         <div class="code-block">
             <div class="code-header">
-                <h3>Editing: ${block.title}</h3>
+                <div class="edit-title-group">
+                    <input type="text" id="edit-title" class="edit-title-input" value="${escapeHtml(block.title)}">
+                    <span class="edit-category">in ${escapeHtml(block.category)}</span>
+                </div>
                 <div class="code-actions">
                     <button class="save-edit-btn" data-id="${block.id}">Save</button>
                     <button class="cancel-edit-btn" data-id="${block.id}">Cancel</button>
                 </div>
             </div>
             <div class="code-content">
+                <div class="form-group">
+                    <label for="edit-category">Category</label>
+                    <input type="text" id="edit-category" class="edit-field" value="${escapeHtml(block.category)}">
+                </div>
                 <div class="form-group">
                     <label for="edit-code">Code</label>
                     <textarea id="edit-code" class="edit-textarea">${escapeHtml(block.code)}</textarea>
@@ -374,6 +381,8 @@ async function saveEdit() {
     const block = codeBlocks.find(b => b.id === currentBlockId);
     if (!block) return;
     
+    const newTitle = document.getElementById('edit-title').value;
+    const newCategory = document.getElementById('edit-category').value;
     const newCode = document.getElementById('edit-code').value;
     const newExplanation = document.getElementById('edit-explanation').value;
     const lineExplanationsText = document.getElementById('edit-line-explanations').value;
@@ -395,6 +404,8 @@ async function saveEdit() {
     try {
         // Update the block via API
         await updateCodeBlock(currentBlockId, {
+            title: newTitle,
+            category: newCategory,
             code: newCode,
             explanation: newExplanation,
             lineExplanations: newLineExplanations
