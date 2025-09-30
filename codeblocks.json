@@ -1,27 +1,42 @@
 [
   {
-    "id": 1,
-    "title": "Array Sorting Function",
-    "category": "JavaScript",
-    "code": "function sortArray(arr) {\n  return arr.sort((a, b) => a - b);\n}\n\nconst numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5];\nconst sorted = sortArray(numbers);\nconsole.log(sorted);",
-    "explanation": "This function sorts an array of numbers in ascending order using the Array.sort() method with a comparison function.",
-    "lineExplanations": {
-      "1": "Define a function named sortArray that takes an array as parameter",
-      "2": "Return the sorted array using a comparison function for numerical sorting",
-      "5": "Declare an array of numbers to sort",
-      "6": "Call the sortArray function and store the result",
-      "7": "Output the sorted array to the console"
-    }
+    "id": 2,
+    "title": "FastAPI Backend Structure",
+    "category": "Files",
+    "code": "backend/\n    app/\n        __init__.py\n        main.py\n    authentication/\n        __init__.py\n        models.py\n        router.py\n        schemas.py\n        security.py\n        utils.py\n    data/\n        users.json\n        movies.json",
+    "explanation": "The general file structure for a FastAPI backend",
+    "lineExplanations": {}
   },
   {
-    "id": 2,
-    "title": "Python Start",
-    "category": "Python",
-    "code": "print(\"Hello, World!\")\nThis is a test line",
-    "explanation": "Starter code",
+    "id": 3,
+    "title": "General main.py",
+    "category": "FastAPI Backend",
+    "code": "from fastapi import FastAPI, HTTPException\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom backend.authentication import router as authentication_router\n\napp = FastAPI()\n\napp.include_router(authentication_router.router, prefix=\"/auth\", tags=[\"auth\"])\n\napp.add_middleware(\n  CORSMiddleware,\n  allow_origins=[\"http://localhost:3000\"],  # Next.js dev server\n  allow_credentials=True,\n  allow_methods=[\"*\"],\n  allow_headers=[\"*\"],\n)\n\n@app.get(\"/\")\nasync def read_root():\n  return {\"message\": \"root route!!\"}\n\n@app.get(\"/ping\")\nasync def ping():\n  return {\"message\": \"pong\"}",
+    "explanation": "This code sets up a FastAPI backend server designed to work with a Next.js frontend, featuring authentication routes mounted under the \"/auth\" prefix and basic API endpoints for root access and health checks. The application is configured with CORS middleware to securely allow cross-origin requests from the frontend development server, enabling seamless communication between the separate frontend and backend services during development. The structure provides a clean foundation for building a full-stack application with organized routing and proper cross-origin request handling.",
     "lineExplanations": {
-      "1": "First line",
-      "2": "Another test to make sure"
+      "1": "Imports the main FastAPI class and HTTPException for error handling",
+      "2": "Imports CORS middleware to handle cross-origin requests",
+      "3": "Imports authentication router from backend module",
+      "4": "Blank Line",
+      "5": "Creates the main FastAPI application instance",
+      "6": "Blank Line",
+      "7": "Includes authentication routes with \"/auth\" prefix and groups them under \"auth\" tags",
+      "8": "Blank Line",
+      "9": "Adds middleware to the application",
+      "10": "Specifies CORS middleware type",
+      "11": "Allows requests from Next.js development server running on port 3000",
+      "12": "Enables cookies and authentication headers to be included in requests",
+      "13": "Permits all HTTP methods (GET, POST, PUT, DELETE, etc.)",
+      "14": "Allows all types of HTTP headers in requests",
+      "15": "Closes the middleware configuration block",
+      "16": "Blank Line",
+      "17": "Decorator that defines a GET endpoint for the root path",
+      "18": "Defines an asynchronous function to handle requests to the root endpoint",
+      "19": "Returns a JSON response with a welcome message",
+      "20": "Blank Line",
+      "21": "Decorator that defines a GET endpoint for the \"/ping\" path",
+      "22": "Defines an asynchronous function for the health check endpoint",
+      "23": "Returns a JSON response with \"pong\" message"
     }
   }
 ]
