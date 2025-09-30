@@ -191,6 +191,13 @@ function renderReadView(block) {
             <div class="code-header">
                 <h3>${block.title}</h3>
                 <div class="code-actions">
+                    <button class="copy-btn" data-id="${block.id}" title="Copy code to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy
+                    </button>
                     <button class="edit-btn" data-id="${block.id}">Edit</button>
                     <button class="delete-btn" data-id="${block.id}">Delete</button>
                     <button class="fullscreen-btn" data-id="${block.id}">Fullscreen</button>
@@ -214,9 +221,70 @@ function renderReadView(block) {
     });
     
     // Add event listeners for buttons
+    document.querySelector('.copy-btn').addEventListener('click', handleCopy);
     document.querySelector('.edit-btn').addEventListener('click', enableEditMode);
     document.querySelector('.delete-btn').addEventListener('click', handleDelete);
     document.querySelector('.fullscreen-btn').addEventListener('click', openFullscreenViewer);
+}
+
+// Handle copy button click
+async function handleCopy(e) {
+    const blockId = parseInt(e.currentTarget.dataset.id);
+    const block = codeBlocks.find(b => b.id === blockId);
+    
+    if (!block) return;
+    
+    try {
+        await navigator.clipboard.writeText(block.code);
+        
+        // Visual feedback
+        const copyBtn = e.currentTarget;
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Copied!
+        `;
+        copyBtn.style.backgroundColor = '#27ae60';
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalText;
+            copyBtn.style.backgroundColor = '';
+        }, 2000);
+        
+    } catch (err) {
+        console.error('Failed to copy code: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = block.code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            
+            // Visual feedback for fallback
+            const copyBtn = e.currentTarget;
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Copied!
+            `;
+            copyBtn.style.backgroundColor = '#27ae60';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.backgroundColor = '';
+            }, 2000);
+            
+        } catch (fallbackErr) {
+            console.error('Fallback copy failed: ', fallbackErr);
+            alert('Failed to copy code to clipboard');
+        }
+        document.body.removeChild(textArea);
+    }
 }
 
 // Handle delete button click
