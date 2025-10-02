@@ -88,7 +88,7 @@
     "id": 6,
     "title": "Authentication schemas.py",
     "category": "FastAPI Backend",
-    "code": "from typing import Optional, List\nfrom pydantic import BaseModel, EmailStr, validator\nfrom enum import Enum\n\nclass UserRole(str, Enum):\n    USER = \"user\"\n    MODERATOR = \"moderator\"\n    ADMIN = \"admin\"\n\nclass UserBase(BaseModel):\n    username: str\n    email: EmailStr\n\nclass UserCreate(UserBase):\n    password: str\n    role: UserRole = UserRole.USER  # Default role\n    \n    @validator('password')\n    def validate_password_strength(cls, v):\n        if len(v) < 8:\n            raise ValueError('Password must be at least 8 characters')\n        return v\n\nclass UserLogin(BaseModel):\n    username: str\n    password: str\n\nclass UserResponse(UserBase):\n    role: UserRole\n    \n    class Config:\n        from_attributes = True\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n\nclass UserUpdate(BaseModel):\n    role: Optional[UserRole] = None\n    email: Optional[EmailStr] = None",
+    "code": "from typing import Optional, List\nfrom pydantic import BaseModel, EmailStr, validator\nfrom enum import Enum\n\nclass UserRole(str, Enum):\n    USER = \"user\"\n    MODERATOR = \"moderator\"\n    ADMIN = \"admin\"\n\nclass UserBase(BaseModel):\n    username: str\n    email: EmailStr\n\nclass UserCreate(UserBase):\n    password: str\n    role: UserRole = UserRole.USER  # Default role\n    \n    @validator('password')\n    def validate_password_strength(cls, v):\n        if len(v) < 8:\n            raise ValueError('Password must be at least 8 characters')\n        return v\n\nclass UserLogin(BaseModel):\n    username: str\n    password: str\n\nclass UserResponse(UserBase):\n    role: UserRole\n    \n    class Config:\n        from_attributes = True\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    user_id: int\n    role: UserRole \n\nclass UserUpdate(BaseModel):\n    role: Optional[UserRole] = None\n    email: Optional[EmailStr] = None",
     "explanation": "This code defines a comprehensive set of Pydantic models for user management and authentication in a FastAPI application, including role-based access control with three distinct user roles (USER, MODERATOR, ADMIN). The models handle user creation with password strength validation, user responses with ORM compatibility, login credentials, JWT token responses including role information, and user profile updates with optional fields. The schema hierarchy promotes code reuse through inheritance while ensuring data validation and type safety throughout the authentication system.",
     "lineExplanations": {
       "1": "Import statement bringing in Optional and List type hints from typing module",
@@ -127,11 +127,13 @@
       "34": "Defines Token class that inherits from BaseModel",
       "35": "Defines access_token field as string type",
       "36": "Defines token_type field as string with default value \"bearer\"",
-      "37": "Defines role field with UserRole type for including role in token response",
-      "38": "Blank line",
-      "39": "Defines UserUpdate class that inherits from BaseModel",
-      "40": "Defines optional role field that can be None",
-      "41": "Defines optional email field that can be None"
+      "37": "Defines user_id field as type int",
+      "38": "Defines role as role from UserRole enum",
+      "39": "Defines role field with UserRole type for including role in token response",
+      "40": "Blank line",
+      "41": "Defines UserUpdate class that inherits from BaseModel",
+      "42": "Defines optional role field that can be None",
+      "43": "Defines optional email field that can be None"
     }
   },
   {
@@ -312,7 +314,7 @@
     "id": 13,
     "title": "Router - /login",
     "category": "FastAPI Backend",
-    "code": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordRequestForm\nfrom backend.authentication import schemas, utils, security\n\nrouter = APIRouter()\n\n@router.post(\"/login\", response_model=schemas.Token)\ndef login(form_data: OAuth2PasswordRequestForm = Depends()):\n    users = utils.load_users()\n    user = next((u for u in users if u[\"username\"] == form_data.username), None)\n\n    if not user or not security.verify_password(form_data.password, user[\"hashed_password\"]):\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Invalid username or password\",\n            headers={\"WWW-Authenticate\": \"Bearer\"},\n        )\n\n    access_token = security.create_access_token(\n        data={\"sub\": user[\"username\"], \"user_id\": user[\"id\"], \"role\": user[\"role\"]}\n    )\n    return {\n        \"access_token\": access_token, \n        \"token_type\": \"bearer\",\n    }",
+    "code": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordRequestForm\nfrom backend.authentication import schemas, utils, security\n\nrouter = APIRouter()\n\n@router.post(\"/login\", response_model=schemas.Token)\ndef login(form_data: OAuth2PasswordRequestForm = Depends()):\n    users = utils.load_users()\n    user = next((u for u in users if u[\"username\"] == form_data.username), None)\n\n    if not user or not security.verify_password(form_data.password, user[\"hashed_password\"]):\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Invalid username or password\",\n            headers={\"WWW-Authenticate\": \"Bearer\"},\n        )\n\n    access_token = security.create_access_token(\n        data={\"sub\": user[\"username\"], \"user_id\": user[\"id\"], \"role\": user[\"role\"]}\n    )\n    return {\n        \"access_token\": access_token, \n        \"token_type\": \"bearer\",\n        \"user_id\": user[\"id\"], \n        \"role\": user[\"role\"] \n    }",
     "explanation": "This code implements an OAuth2-compliant login endpoint that authenticates users by verifying their credentials against stored user data and returns a JWT bearer token upon successful authentication. The endpoint follows OAuth2 password flow standards by using the OAuth2PasswordRequestForm dependency, performs secure password verification using hashed passwords, and generates tokens containing user identity claims including username, user ID, and role for authorization purposes. Proper HTTP headers and status codes are used to maintain OAuth2 compliance throughout the authentication process.",
     "lineExplanations": {
       "1": "Import statement bringing in APIRouter for routing, Depends for dependency injection, HTTPException for error handling, and status for HTTP status codes",
@@ -339,7 +341,9 @@
       "22": "Starts constructing the response dictionary",
       "23": "Includes the generated access token in the response",
       "24": "Specifies the token type as \"bearer\" following OAuth2 standards",
-      "25": "Ends constructing the response dictionary"
+      "25": "Includes the users id in the response",
+      "26": "Includes the users role in the response",
+      "27": "Ends constructing the response dictionary"
     }
   }
 ]
